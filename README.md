@@ -12,13 +12,17 @@ tu możemy pisać plany, papery itp.
 
 nice
 
-Pomysły na to co będziemy modelować: - religia, np. Izrael i jak zmienia
-się religia wyznawana z wiekiem, pod wpływem rodziny, znajomych,
-sąsiadów etc etc - blockchain - spread of information on the internet -
-this has been done but is kind of interesting in terms of information
-spread
+### Pomysły na to co będziemy modelować: 
 
-### Z myślą o napisaniu raportu zrobię tu notatki:
+-   religia, np. Izrael i jak zmienia się religia wyznawana z wiekiem,
+    pod wpływem rodziny, znajomych, sąsiadów etc etc
+
+-   blockchain
+
+-   spread of information on the internet - this has been done but is
+    kind of interesting in terms of information spread
+
+### Z myślą o pisaniu raportu zrobię tu notatki:
 
 Agent-based modeling (z wikipedii na easy, wstępne rozeznanie):
 
