@@ -1,20 +1,12 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # ABM_CPMII
-
-tu możemy pisać plany, papery itp.
-
+Tutorial on mesa
 <https://towardsdatascience.com/introduction-to-mesa-agent-based-modeling-in-python-bcb0596e1c9a>
 
 https://www.youtube.com/watch?v=u-XeFNeImyk <-- tutorial on MESA (Boltzmann game)
 and the code from the tutorial --> https://github.com/wlifferth/modeling-inequality-with-mesa
 https://github.com/wlifferth/spatially-iterated-prisoners-dilemma
     
-### Pomysły cz.2 : 
+### Pomysły : 
     **Small World Model**: This model is based on the idea that social networks often exhibit both high clustering (meaning that individuals tend to be connected to others who are also connected to each other) and short path lengths (meaning that it is possible to reach any individual in the network from any other individual with relatively few steps). The model is implemented by starting with a regular lattice of individuals, and then randomly rewiring some of the connections to create shortcuts. This model can be used to study the emergence of social communities and the spread of information through a network.
 
   **  Preferential Attachment Model**: This model is based on the idea that new connections in a social network are more likely to be formed with individuals who are already highly connected. The model is implemented by starting with a small number of individuals and then adding new individuals one at a time, with each new individual forming connections with existing individuals in proportion to their degree (i.e., the number of connections they already have). This model can be used to study the growth and structure of social networks.
@@ -42,19 +34,6 @@ Na ten moment czuję tak:
 
       Feedback Loops: Agents can influence the opinions and behaviors of their neighbors, which can in turn influence their own behavior and opinions. For example, an agent might adopt a new behavior or opinion after observing it in a few of their neighbors, which could then cause more of their neighbors to adopt the same behavior or opinion in a feedback loop.
 
-
-    
-### Pomysły cz.1 
-
--   religia, np. Izrael i jak zmienia się religia wyznawana z wiekiem,
-    pod wpływem rodziny, znajomych, sąsiadów etc etc
-
--   blockchain
-
--   spread of information on the internet - this has been done but is
-    kind of interesting in terms of information spread   
-    
- 
     
 ### Z myślą o pisaniu raportu zrobię tu notatki:
 
