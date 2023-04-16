@@ -34,11 +34,9 @@ Agent-based modeling (z wikipedii na easy, wstępne rozeznanie):
 
 -   computational model for simulating the actions and interactions of autonomous agents (both individual or collective entities such as organizations or groups) in order to understand the behavior of a system and what governs its outcomes
 
-<!-- -->
 
 -   explanatory insight \> solving specific engineering problems
 
-<!-- -->
 
 -   individual agents are boundedly (bounded by what they know and their own interests) rational - acting in own interests, they might be able to learn
 
