@@ -17,11 +17,6 @@ https://github.com/wlifferth/spatially-iterated-prisoners-dilemma
 
     Social Influence Model: This model is based on the idea that individuals in a social network may be influenced by the behavior and opinions of others. The model is implemented by representing individuals as nodes in a network and modeling the spread of influence through the edges connecting them. The model can be used to study the dynamics of opinion formation and the emergence of social norms in a network.
     
-### Komentarz
-Na ten moment czuję tak:
- -epidemic spreading model on social networks <-- pretty straightforward, easy to conceptualize and find good working example
- -network formation game model <-- bardzo ciekawe
- - social influence model <--- również ciekawe i dobrze wpasowuje się w zasugerowany temat pracy.
 
 ### Possible rules that we could implement in Social influence model 
       Influence Threshold: Each agent has an influence threshold, which represents the minimum number of neighbors they need to agree with before changing their own behavior or opinion. For example, an agent might require at least 50% of their neighbors to hold a particular opinion before they adopt that opinion themselves.
