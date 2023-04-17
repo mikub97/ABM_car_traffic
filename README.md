@@ -48,7 +48,9 @@ Social network analysis: SOCIOGRAMS
 
 -   
 
-### Plan do posłania Zubkowi (draft, bo w sumie dużo tu pytań wrzuciłam)
+### Plan do posłania Zubkowi (draft, bo w sumie dużo tu pytań wrzuciłam):
+
+link do planu w google docs: <https://docs.google.com/document/d/1NcOlvnU5P2o1E-pT9p-IWW_4EpE5H80uOQhR-QOOCoE/edit?usp=sharing>
 
 Wybraliśmy jednak temat 5 (Multi-agent models of social phenomena) zamiast wcześniej zgłaszanego 6A. Po przejrzeniu różnych materiałów na ten temat postanowiliśmy zrobić social influence model używając library mesa w Pythonie. 
 
