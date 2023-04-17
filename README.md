@@ -78,7 +78,7 @@ Feedback Loops: Agents can influence the opinions and behaviors of their neighbo
 
 Overall opinion 
 
-	c. Consider how many \'opinions\' we want to have in our model?  Would it be a sort of bipartisan model with people being either democrats or republicans? Or perhaps we could have a plurality of opinions? Would it be possible to have a gradient of opinions, so a \'far right\' would be more likely to be influenced by someone on the right than a leftist? 
+	c. Consider how many \'opinions\' we want to have in our model?  Would it be a sort of bipartisan model with people being either democrats or republicans? Or perhaps we could have a plurality of opinions? Would it be possible to have a gradient of opinions, so a \'far right\' would be more likely to be influenced by someone on the right than a leftist? --\> *this could be possible with a likert scale and if a distance is more than 2 then the influence doesn't happen? So 1-far right, 2-right, 3-center, 4-left, 5-far left? just noting down this idea, we don't have to implement it.*
 
 3\. Create a webpage through which we could display visualizations (thank you Michał) 
 
