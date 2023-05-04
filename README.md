@@ -60,7 +60,7 @@ Plan:
 
 2\. Start building our model and playing with it, seeing how it works.
 
-	a. Potential parameters we would like to have in our model: an influence threshold, social learning (agents can learn from their neighbors - *isn\'t this kind of the same as influence threshold?*), confirmation bias, number of \'possible opinions\', size of neighborhood (how many cells away is the last influential neighbor), perhaps there could be some \"media\"/opinion influencer agents which have a higher reach among their neighbors, how many percent of which opinion we start with. What if we could have an opinion which only 5% of population have but they are strong social influencers?
+    a. Potential parameters we would like to have in our model: an influence threshold, social learning (agents can learn from their neighbors - *isn\'t this kind of the same as influence threshold?*), confirmation bias, number of \'possible opinions\', size of neighborhood (how many cells away is the last influential neighbor), perhaps there could be some \"media\"/opinion influencer agents which have a higher reach among their neighbors, how many percent of which opinion we start with. What if we could have an opinion which only 5% of population have but they are strong social influencers?
 
  Influence Threshold: Each agent has an influence threshold, which represents the minimum number of neighbors they need to agree with before changing their own behavior or opinion.
 
@@ -74,14 +74,24 @@ Plan:
 
 Feedback Loops: Agents can influence the opinions and behaviors of their neighbors, which can in turn influence their own behavior and opinions. For example, an agent might adopt a new behavior or opinion after observing it in a few of their neighbors, which could then cause more of their neighbors to adopt the same behavior or opinion in a feedback loop.
 
-	b. Come up with a list of measures that will allow us to about how this social influence changes the beliefs of our agents and what the patterns are:
+    b. Come up with a list of measures that will allow us to about how this social influence changes the beliefs of our agents and what the patterns are:
 
 Overall opinion 
 
-	c. Consider how many \'opinions\' we want to have in our model?  Would it be a sort of bipartisan model with people being either democrats or republicans? Or perhaps we could have a plurality of opinions? Would it be possible to have a gradient of opinions, so a \'far right\' would be more likely to be influenced by someone on the right than a leftist? --\> *this could be possible with a likert scale and if a distance is more than 2 then the influence doesn't happen? So 1-far right, 2-right, 3-center, 4-left, 5-far left? just noting down this idea, we don't have to implement it.*
+    c. Consider how many \'opinions\' we want to have in our model?  Would it be a sort of bipartisan model with people being either democrats or republicans? Or perhaps we could have a plurality of opinions? Would it be possible to have a gradient of opinions, so a \'far right\' would be more likely to be influenced by someone on the right than a leftist? --\> *this could be possible with a likert scale and if a distance is more than 2 then the influence doesn't happen? So 1-far right, 2-right, 3-center, 4-left, 5-far left? just noting down this idea, we don't have to implement it.*
 
 3\. Create a webpage through which we could display visualizations (thank you Michał) 
 
 4\. Create a presentation (12.06.2023) - present findings, interesting problems we encountered, demonstrate how the model is useful in thinking about social influence (traditional media, social media, social norm emergence, opinion formation)
 
 5\. Write up a final report and submit final code (30.06.2023) 
+
+## Collecting info on religious denominations:
+
+<https://docs.google.com/document/d/1EiwuiE9-WGq3qd9R5DN_hsf69jc10w6VM-yQxjH_t58/edit?usp=sharing>
+
+-   I encountered a problem - aka diecezje nie pokrywają się z województwami, zastanawiam się czy chcemy się skupić na calej polsce czy na paru województwach, np. na mazowieckim i podlaskim (bo ono ma prawosławie więc może to ciekawy faktor) - zakładam, że raczej skupimy się na Polsce, ale wtedy będzie trzeba to raczej uprościć i chyba będzie mieć więcej znaczenia region niż miasto // wieś
+
+-   I czy chcemy startowe dane na załóżmy 2021 rok czy też chcemy zobaczyć jak to się zmieniało żeby na podstawie zmian w przeszłości móc modelować przyszłość? Może to ciekawe, a może troche banalne - sama nie wiem.
+
+-   
