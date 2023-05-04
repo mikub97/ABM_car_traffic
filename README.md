@@ -1,5 +1,7 @@
 # ABM_CPMII
 
+UPADTE TOTAL FULL UPGRADE MAX ON - https://docs.google.com/document/d/1nEa1AxrkaHOHObmWhWbFLQ_gJrWdjL4zLxAAGjnqjIs/edit?usp=sharing
+
 Tutorial on mesa <https://towardsdatascience.com/introduction-to-mesa-agent-based-modeling-in-python-bcb0596e1c9a>
 
 <https://www.youtube.com/watch?v=u-XeFNeImyk> \<-- tutorial on MESA (Boltzmann game) and the code from the tutorial --\> <https://github.com/wlifferth/modeling-inequality-with-mesa> <https://github.com/wlifferth/spatially-iterated-prisoners-dilemma>
