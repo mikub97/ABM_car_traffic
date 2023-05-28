@@ -1,0 +1,10 @@
+{
+  "width": 1200,
+  "height": 200,
+  "n_agent": 3,
+  "n_lane": 1,
+  "n_node": 10,
+  "separation_k": 0.5,
+  "torus": true,
+  "fps": 100
+}
