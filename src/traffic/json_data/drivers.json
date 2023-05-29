@@ -14,7 +14,7 @@
         "unique_id":2,
         "start":1,
         "end": 9,
-        "lane":0,
+        "lane":1,
         "velocity":[0.0,0.0],
         "max_speed":0.09,
         "acceleration":0.01,

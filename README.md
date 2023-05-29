@@ -7,6 +7,7 @@ The structure of the project:
 - in src/driver.py there is a Driver class, which inherits from mesa.Agent class
 - in src/gui.py there is Gui class, that uses pygame module to display a real-time simulation of the model
 - in main.py, you initialise a TrafficModel class and feed it to the Gui class to run the simulation
+- in boid_flockers/ directory there is an example of mesa ABM, found on internet - ignore it.
 
 To run the simulation:
 1. Setup the config json files json_data/drivers.json and json_data/traffic.json
