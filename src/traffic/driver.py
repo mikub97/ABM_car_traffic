@@ -12,7 +12,6 @@ class Driver(mesa.Agent):
 
     """
 
-
     def __init__(
             self,
             driver_id,
@@ -52,17 +51,23 @@ class Driver(mesa.Agent):
 
         self.strategy = strategy
 
+    def node_ahead(self):
+        try:
+            return self.model.nodes[self.node_checkpoints.index(False)]
+        except ValueError:
+            return None  # we have arrived the destination
 
     def driver_ahead(self):
         min_distance = float("inf")
         ahead = None
-        for d in self.model.drivers:
+        for d in self.model.drivers_schedule.agents:
             if d.unique_id is not self.unique_id & d.current_lane[0] is self.current_lane[0]:
-                dist = d.pos[0]-self.pos[0]
+                dist = d.pos[0] - self.pos[0]
                 if min_distance > dist > 0:
                     min_distance = dist
                     ahead = d
         return ahead
+
     def step(self):
         """
         Get move accordingly.
@@ -70,48 +75,55 @@ class Driver(mesa.Agent):
         If so, mark it and check the lane according to your strategy
         """
 
-        # if there is a node to still to be reached, give me the index of the closest,
-        # save it as next_node
-        try:
-            next_node = self.node_checkpoints.index(False)
-        except ValueError:
-            return  # the destination
+        node_ahead = self.node_ahead()
 
-        # calculate the new position
-        v = self.calc_v()
-        new_pos = self.pos + v #self.velocity + sep
+        if node_ahead is None:
+            self.kill()
+
+        # (re)calculate velocity and the new position
+        self.calc_v()
+        new_pos = self.pos + self.velocity
 
         # check if a checkpoint is reached
-        if self.model.nodes_distances[next_node] <= new_pos[0]:  # next_node is reached
-            self.node_checkpoints[next_node] = True  # set that checkpoint as reached
-            if next_node == self.end_node or next_node == self.model.n_nodes - 1:  # the checkpoint is the last node in the model
+        if node_ahead.pos[0] <= new_pos[0]:  # next_node is reached
+            self.node_checkpoints[node_ahead.unique_id] = True  # set that checkpoint as reached
+            if node_ahead.unique_id == self.end_node or node_ahead .unique_id== self.model.n_nodes - 1:  # the checkpoint is the last node in the model
+                self.kill()
                 return
+            # switch lane here
 
         self.model.space.move_agent(self, new_pos)
+
+    def kill(self):
+        self.model.kill_driver(self.unique_id)
 
     def calc_v(self):
         """
 
         """
-        ahead = self.driver_ahead()
-        if ahead is None:
-            if self.velocity[0]<self.max_speed[0]:
-                self.velocity[0]+=self.acceleration[0]
-            return self.velocity
+
+        driver_ahead = self.driver_ahead()
+
+        if driver_ahead is None:
+            if self.velocity[0] < self.max_speed[0]:
+                self.velocity[0] += self.acceleration[0]
+            return
 
         v = np.zeros(2)
-        actual_distance = self.model.space.get_distance(self.pos, ahead.pos)
-        if self.velocity[0]<=self.max_speed[0]:
-            max_speed = self.velocity[0]+self.acceleration[0]
+        actual_distance = self.model.space.get_distance(self.pos, driver_ahead.pos)
+        if self.velocity[0] < self.max_speed[0]:
+            max_speed = self.velocity[0] + self.acceleration[0]
         else:
             max_speed = self.max_speed[0]
-        v[0] = max_speed*self.model.separation_k*(np.tanh(actual_distance-self.desired_distance)+np.tanh(self.desired_distance))
-        self.velocity+=v[0]
-        return v
+        v[0] = max_speed * self.model.separation_k * (
+                np.tanh(actual_distance - self.desired_distance) + np.tanh(self.desired_distance))
+        self.velocity[0] = v[0]
+
 
     def accelerate(self):
-        if self.velocity<self.max_speed[0]:
-            self.velocity+=self.acceleration[0]
+        if self.velocity < self.max_speed[0]:
+            self.velocity += self.acceleration[0]
+
     def switch_lane(self):
         """
         For now, 'teleports' to a random lane

@@ -5,8 +5,8 @@
         "end": 9,
         "lane":0,
         "velocity":[0.0,0.0],
-        "max_speed":0.15,
-        "acceleration":0.01,
+        "max_speed":0.5,
+        "acceleration":0.4,
         "desired_distance":40,
         "strategy": null
     },
@@ -16,7 +16,7 @@
         "end": 9,
         "lane":1,
         "velocity":[0.0,0.0],
-        "max_speed":0.09,
+        "max_speed":0.05,
         "acceleration":0.01,
         "desired_distance":40,
         "strategy": null
@@ -24,11 +24,11 @@
       {
         "unique_id":3,
         "start":2,
-        "end": 9,
+        "end": 3,
         "lane":0,
         "velocity":[0.0,0.0],
-        "max_speed":0.06,
-        "acceleration":0.015,
+        "max_speed":0.2,
+        "acceleration":0.07,
         "desired_distance":40,
         "strategy": null
     }

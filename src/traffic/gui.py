@@ -1,3 +1,5 @@
+import warnings
+
 import pygame
 from pygame.locals import *
 
@@ -6,6 +8,7 @@ from src.traffic.model import TrafficModel
 pygame.font.init()
 pygame.mixer.init()
 WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
@@ -24,6 +27,10 @@ class Car(pygame.sprite.Sprite):
         pygame.Surface.blit(self.image, self.text_surface, (driver.car_size/4, 0))
 
     def update(self):
+        if self.driver is None or self.driver.pos is None:
+            warnings.warn(f"The driver {self.driver.unique_id} is dead")
+            self.kill()
+            return
         self.rect.x = self.driver.pos[0]
         self.rect.y = self.driver.pos[1]
 class GUI:
@@ -41,7 +48,7 @@ class GUI:
         pygame.display.set_caption("Traffic")
 
         self.cars = pygame.sprite.Group()
-        for driver in self.model.drivers:
+        for driver in self.model.drivers_schedule.agents:
             self.cars.add(Car(driver))
 
     def handle_events(self):
@@ -62,19 +69,24 @@ class GUI:
         pygame.display.flip()
 
     def draw_node(self,node, is_final=False):
-        if node.state == "RED":
-            if (is_final):
-                pygame.draw.rect(self.screen, RED, (node.position - self.node_size, 0, self.node_size, self.node_size))
-                text_render = FONT.render(str(node.nodeID[0]), True, WHITE)
-                text_rect = text_render.get_rect(
-                    center=(node.position - self.node_size + self.node_size // 2, 0 + self.node_size // 2))
-                self.screen.blit(text_render, text_rect)
-            else:
-                pygame.draw.rect(self.screen, RED, (node.position, 0, self.node_size, self.node_size))
-                text_render = FONT.render(str(node.nodeID[0]), True, WHITE)
-                text_rect = text_render.get_rect(center=(node.position + self.node_size // 2, 0 + self.node_size // 2))
-                self.screen.blit(text_render, text_rect)
-                pygame.draw.line(self.screen, WHITE, (node.position, 0), (node.position, self.height))
+        if node.state == "red":
+            col = RED
+        elif node.state == "yellow":
+            col = YELLOW
+        else:
+            col = GREEN
+        if (is_final):
+            pygame.draw.rect(self.screen, col, (node.pos[0] - self.node_size, 0, self.node_size, self.node_size))
+            text_render = FONT.render(str(node.unique_id), True, WHITE)
+            text_rect = text_render.get_rect(
+                center=(node.pos[0] - self.node_size + self.node_size // 2, 0 + self.node_size // 2))
+            self.screen.blit(text_render, text_rect)
+        else:
+            pygame.draw.rect(self.screen, col, (node.pos[0], 0, self.node_size, self.node_size))
+            text_render = FONT.render(str(node.unique_id), True, WHITE)
+            text_rect = text_render.get_rect(center=(node.pos[0] + self.node_size // 2, 0 + self.node_size // 2))
+            self.screen.blit(text_render, text_rect)
+            pygame.draw.line(self.screen, WHITE, (node.pos[0], 0), (node.pos[0], self.height))
     def draw_window(self):
         self.screen.fill(BLACK)
         for i in range(3):

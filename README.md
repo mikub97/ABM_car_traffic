@@ -1,5 +1,7 @@
 # ABM_CPMII
 
+GENERAL REMARK - be mindful about giving nodes/agents id - unique_ids should have values from 0 to n,
+this is the index of the element in the nodes/agents lists respectively
 
 The structure of the project:
 - in the directory json_data/ you can find two files 'drivers.json' and 'traffic.json'(where configuration of the simulation is stored)
