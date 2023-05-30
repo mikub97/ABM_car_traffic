@@ -5,6 +5,7 @@ GENERAL REMARKS
 this is the index of the element in the nodes/agents lists respectively
 - When using lights.json file as a config for traffic lights, remember, that you don't need to add the final node (the end of the road), its added automatically
 - the cars (the drivers) are in points in the space. Their graphical expression is not yet well adjusted (boundaries of a car)
+
 The structure of the project:
 - in the directory json_data/ you can find two files 'drivers.json' and 'traffic.json'(where configuration of the simulation is stored)
 - in src/model.py there is a TrafficModel class, which inherits from mesa.Model class
