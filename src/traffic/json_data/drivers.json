@@ -3,7 +3,7 @@
         "unique_id":1,
         "start":0,
         "end": 9,
-        "lane":0,
+        "lane":2,
         "velocity":[0.0,0.0],
         "max_speed":0.5,
         "acceleration":0.4,
@@ -24,7 +24,7 @@
       {
         "unique_id":3,
         "start":2,
-        "end": 3,
+        "end": 4,
         "lane":0,
         "velocity":[0.0,0.0],
         "max_speed":0.2,

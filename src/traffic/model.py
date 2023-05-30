@@ -25,7 +25,7 @@ class TrafficModel(mesa.Model):
     def __init__(
             self,
             traffic_json_file=None,
-
+            nodes_json_file=None,
             drivers_json_file=None
     ):
         """
@@ -64,7 +64,30 @@ class TrafficModel(mesa.Model):
         self.space = mesa.space.ContinuousSpace(self.width, self.height, self.torus)
         self.killed_drivers = []
         self.nodes = []
-        self.make_nodes()
+
+        if nodes_json_file is None:
+            self.make_nodes()
+        else:
+            with open(nodes_json_file, "r") as read_file:
+                data = json.load(read_file)
+                for i,node_json in enumerate(data):
+                    node = Node(model=self,
+                                unique_id=i,
+                                pos=(node_json["pos"],0),
+                                durations=node_json["durations"],  # red,yellow,green
+                                state=node_json["state"]
+                                )
+                    self.nodes.append(node)
+                    self.lights_schedule.add(node)
+
+                node = Node(model=self,
+                            unique_id=i+1,
+                            pos=(self.width, 0),
+                            durations=[0, 0, 1],  # red,yellow,green
+                            state="green"
+                            )
+                self.nodes.append(node)
+                self.lights_schedule.add(node)
 
         # Creating random agents or reading them from a json file
         if drivers_json_file is None:
@@ -73,6 +96,7 @@ class TrafficModel(mesa.Model):
             with open(drivers_json_file, "r") as read_file:
                 data = json.load(read_file)
                 for driver_json in data:
+
                     driver = self.create_agent(unique_id=driver_json["unique_id"],
                                                start=driver_json["start"],
                                                end=driver_json["end"],

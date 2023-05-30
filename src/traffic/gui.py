@@ -21,15 +21,15 @@ class Car(pygame.sprite.Sprite):
         self.image = pygame.Surface((driver.car_size, driver.car_size))
         self.image.fill(WHITE)  # Replace with car image loading or drawing logic
         self.rect = self.image.get_rect()
-        self.rect.center = driver.pos
+        self.rect.center = (driver.pos[0]-driver.car_size,0)
         self.text_surface = FONT.render(str(self.driver.unique_id), True, BLACK)
         self.text_rect = self.text_surface.get_rect(center=self.rect.center)
         pygame.Surface.blit(self.image, self.text_surface, (driver.car_size/4, 0))
 
     def update(self):
         if self.driver is None or self.driver.pos is None:
-            warnings.warn(f"The driver {self.driver.unique_id} is dead")
             self.kill()
+            print(f"The driver {self.driver.unique_id} is killed")
             return
         self.rect.x = self.driver.pos[0]
         self.rect.y = self.driver.pos[1]

@@ -22,7 +22,7 @@ class Node(mesa.Agent):
         if self.phase > sum(self.durations):
             self.phase = 0
         if 0 < self.phase <= self.durations[0]:
-            self.state == "red"
+            self.state = "red"
         elif self.durations[0] < self.phase <= sum(self.durations[0:2]):
             self.state = "yellow"
         else:

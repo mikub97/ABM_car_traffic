@@ -5,6 +5,6 @@
   "n_lane": 3,
   "n_node": 10,
   "separation_k": 0.5,
-  "torus": true,
+  "torus": false,
   "fps": 100
 }

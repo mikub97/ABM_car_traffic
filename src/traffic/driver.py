@@ -76,49 +76,56 @@ class Driver(mesa.Agent):
         """
 
         node_ahead = self.node_ahead()
-
-        if node_ahead is None:
-            self.kill()
+        driver_ahead = self.driver_ahead()
 
         # (re)calculate velocity and the new position
-        self.calc_v()
+        self.calc_v(node_ahead, driver_ahead)
         new_pos = self.pos + self.velocity
+
+        if new_pos[0] <= self.model.nodes[-1].pos[0]:
+            self.model.space.move_agent(self, new_pos)
+
 
         # check if a checkpoint is reached
         if node_ahead.pos[0] <= new_pos[0]:  # next_node is reached
             self.node_checkpoints[node_ahead.unique_id] = True  # set that checkpoint as reached
-            if node_ahead.unique_id == self.end_node or node_ahead .unique_id== self.model.n_nodes - 1:  # the checkpoint is the last node in the model
+            # if the checkpoint is the last node in the model, kill the agent
+            if node_ahead.unique_id == self.end_node or node_ahead.unique_id == self.model.n_nodes - 1:
                 self.kill()
                 return
-            # switch lane here
-
-        self.model.space.move_agent(self, new_pos)
+            self.switch_lane()
 
     def kill(self):
         self.model.kill_driver(self.unique_id)
 
-    def calc_v(self):
+    def calc_v(self, node_ahead, driver_ahead):
         """
 
         """
-
-        driver_ahead = self.driver_ahead()
-
+        is_freeway = False
         if driver_ahead is None:
+            closer_obj_ahead = node_ahead
+            if closer_obj_ahead.state == "green":
+                is_freeway = True
+        elif node_ahead.pos[0] < driver_ahead.pos[0]:
+            closer_obj_ahead = node_ahead
+            if closer_obj_ahead.state == "green":
+                closer_obj_ahead = driver_ahead
+        else:
+            closer_obj_ahead = driver_ahead
+
+        if is_freeway:
             if self.velocity[0] < self.max_speed[0]:
                 self.velocity[0] += self.acceleration[0]
             return
 
-        v = np.zeros(2)
-        actual_distance = self.model.space.get_distance(self.pos, driver_ahead.pos)
+        actual_distance = closer_obj_ahead.pos[0] - self.pos[0]
         if self.velocity[0] < self.max_speed[0]:
             max_speed = self.velocity[0] + self.acceleration[0]
         else:
             max_speed = self.max_speed[0]
-        v[0] = max_speed * self.model.separation_k * (
+        self.velocity[0] = max_speed * self.model.separation_k * (
                 np.tanh(actual_distance - self.desired_distance) + np.tanh(self.desired_distance))
-        self.velocity[0] = v[0]
-
 
     def accelerate(self):
         if self.velocity < self.max_speed[0]:
@@ -140,13 +147,13 @@ class Driver(mesa.Agent):
                 self.teleport_right()
 
     def teleport_left(self):
-        self.current_lane = (self.current_lane[0] + 1,)
+        self.current_lane = (self.current_lane[0] - 1,)
         new_pos = self.pos - (0, self.model.lane_width)
         self.model.space.move_agent(self, new_pos)
 
     def teleport_right(self):
-        self.current_lane = (self.current_lane[0] - 1,)
-        new_pos = self.pos + (0, self.model.lane_width)
+        self.current_lane = (self.current_lane[0] + 1,)
+        new_pos = (self.pos[0], self.pos[1] + self.model.lane_width)
         self.model.space.move_agent(self, new_pos)
 
     def __str__(self):
