@@ -1,7 +1,7 @@
 {
   "width": 1200,
   "height": 200,
-  "n_agent": 3,
+  "n_agent": 10,
   "n_lane": 3,
   "n_node": 10,
   "separation_k": 0.5,

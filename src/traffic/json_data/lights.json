@@ -6,27 +6,27 @@
     },
     {
       "pos": 100,
-      "durations": [300,100,200],
+      "durations": [300,100,400],
       "state": "green"
     },
     {
       "pos": 300,
-      "durations": [300,100,230],
+      "durations": [300,100,400],
       "state": "green"
     },
     {
       "pos": 700,
-      "durations": [350,100,200],
+      "durations": [350,100,500],
       "state": "green"
     },
     {
       "pos": 760,
-      "durations": [200,100,160],
+      "durations": [200,100,500],
       "state": "green"
     },
     {
       "pos": 900,
-      "durations": [300,100,200],
+      "durations": [300,100,500],
       "state": "green"
     }
 ]

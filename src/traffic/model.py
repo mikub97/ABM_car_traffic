@@ -7,10 +7,9 @@ Uses numpy arrays to represent vectors.
 import random
 
 import mesa
-import numpy as np
 import warnings
 
-from src.Node import Node
+from src.traffic.node import Node
 from src.traffic.driver import Driver
 
 import json
@@ -59,7 +58,7 @@ class TrafficModel(mesa.Model):
         self.lane_width = self.height / self.n_lanes
         self.height_unit = self.height / (self.n_lanes * 2)  # used to calc where to put an agent (lane-based)
 
-        self.drivers_schedule = mesa.time.BaseScheduler(self)  # check also RandomActivation and others TODO
+        self.drivers_schedule = mesa.time.BaseScheduler(self)
         self.lights_schedule = mesa.time.StagedActivation(self)
         self.space = mesa.space.ContinuousSpace(self.width, self.height, self.torus)
         self.killed_drivers = []
@@ -87,6 +86,11 @@ class TrafficModel(mesa.Model):
                             state="green"
                             )
                 self.nodes.append(node)
+                if self.n_nodes != len(self.nodes):
+                    warnings.warn(f"\nThe number of nodes in the '{nodes_json_file}' differs from"
+                                  f"the one in the {traffic_json_file},\n"
+                                  f"Setting model.n_agents to {len(self.nodes)}(the value from '{nodes_json_file}') ")
+                    self.n_nodes = len(self.nodes)
                 self.lights_schedule.add(node)
 
         # Creating random agents or reading them from a json file
@@ -106,7 +110,7 @@ class TrafficModel(mesa.Model):
                                                acceleration=driver_json["acceleration"],
                                                desired_distance=driver_json["desired_distance"],
                                                strategy=driver_json["strategy"])
-                    self.space.place_agent(driver, driver.pos[0])
+                    self.space.place_agent(driver, driver.pos)
                     self.drivers_schedule.add(driver)
                 if self.n_agents is not len(self.drivers_schedule.agents):
                     warnings.warn(f"\nThe number of agents in the '{drivers_json_file}' differs from"
@@ -135,22 +139,21 @@ class TrafficModel(mesa.Model):
             end_node = random.randint(start_node + 1, self.n_nodes - 1)
             current_lane = random.randint(0, self.n_lanes - 1)
             height_unit = self.height / (self.n_lanes * 2)  # used to calc where to put an agent (lane-based)
-            pos = [self.nodes[start_node].position, height_unit + current_lane * height_unit * 2]
+            pos = [self.nodes[start_node].pos[0], height_unit + current_lane * height_unit * 2]
             driver = Driver(driver_id=i,
                             model=self,
                             pos=pos,
                             car_size=20,
                             velocity=np.array([random.random() * 3, 0]),
-                            max_speed=0.2,
-                            acceleration=0.0001,
-                            desired_distance=100,
+                            max_speed=0.01+(random.random()+0.2),
+                            acceleration=0.001,
+                            desired_distance=40,
                             current_lane=current_lane,
                             start_node=start_node,
                             end_node=end_node,
                             strategy=None)
             self.space.place_agent(driver, pos)
             self.drivers_schedule.add(driver)
-            self.drivers.append(driver)
 
     def create_agent(self, unique_id, start, end, lane, velocity, max_speed, acceleration, desired_distance, strategy):
         pos = (self.nodes[start].pos[0], self.height_unit + lane * self.height_unit * 2)

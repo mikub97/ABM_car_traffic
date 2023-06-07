@@ -53,7 +53,7 @@ class Driver(mesa.Agent):
 
     def node_ahead(self):
         try:
-            return self.model.nodes[self.node_checkpoints.index(False)]
+            return self.model.nodes[self.node_checkpoints.index(False)] ## error TODO
         except ValueError:
             return None  # we have arrived the destination
 
@@ -134,7 +134,6 @@ class Driver(mesa.Agent):
     def switch_lane(self):
         """
         For now, 'teleports' to a random lane
-        TODO - not working properly yet
         """
         if self.current_lane[0] == 0:
             self.teleport_right()
@@ -148,12 +147,12 @@ class Driver(mesa.Agent):
 
     def teleport_left(self):
         self.current_lane = (self.current_lane[0] - 1,)
-        new_pos = self.pos - (0, self.model.lane_width)
+        new_pos = self.pos - (0, self.model.lane_width) # TODO add 'if there is a free space in the lane'
         self.model.space.move_agent(self, new_pos)
 
     def teleport_right(self):
         self.current_lane = (self.current_lane[0] + 1,)
-        new_pos = (self.pos[0], self.pos[1] + self.model.lane_width)
+        new_pos = (self.pos[0], self.pos[1] + self.model.lane_width) # TODO add 'if there is a free space in the lane'
         self.model.space.move_agent(self, new_pos)
 
     def __str__(self):

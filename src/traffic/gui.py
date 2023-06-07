@@ -29,7 +29,7 @@ class Car(pygame.sprite.Sprite):
     def update(self):
         if self.driver is None or self.driver.pos is None:
             self.kill()
-            print(f"The driver {self.driver.unique_id} is killed")
+            print(f"The driver {self.driver.unique_id} is DEAD")
             return
         self.rect.x = self.driver.pos[0]
         self.rect.y = self.driver.pos[1]
