@@ -1,8 +1,7 @@
 [
-    {
-        "unique_id":1,
-        "start":0,
-        "end": 9,
+
+  {
+        "unique_id":0,
         "lane":2,
         "velocity":[0.0,0.0],
         "max_speed":0.5,
@@ -10,21 +9,35 @@
         "desired_distance":40,
         "strategy": null
     },
+        {
+        "unique_id":1,
+        "lane":2,
+        "velocity":[0.5,0.0],
+        "max_speed":0.5,
+        "acceleration":0.4,
+        "desired_distance":40,
+        "strategy": null
+    },
     {
         "unique_id":2,
-        "start":1,
-        "end": 9,
         "lane":1,
         "velocity":[0.0,0.0],
-        "max_speed":0.05,
+        "max_speed":0.4,
         "acceleration":0.01,
         "desired_distance":40,
         "strategy": null
     },
       {
         "unique_id":3,
-        "start":2,
-        "end": 4,
+        "lane":0,
+        "velocity":[0.0,0.0],
+        "max_speed":0.2,
+        "acceleration":0.07,
+        "desired_distance":40,
+        "strategy": null
+    },
+        {
+        "unique_id":4,
         "lane":0,
         "velocity":[0.0,0.0],
         "max_speed":0.2,
