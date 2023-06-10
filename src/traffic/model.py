@@ -4,6 +4,7 @@ import warnings
 import mesa
 import json
 import numpy as np
+import pandas as pd
 from mesa import DataCollector
 
 from src.traffic.node import Node
@@ -25,10 +26,12 @@ class TrafficModel(mesa.Model):
         Args:
 
         """
+        self.datacollector = None
         drivers_json_file = "input_files/" + experiment + "/drivers.json"
         nodes_json_file = "input_files/" + experiment + "/lights.json"
         traffic_json_file = "input_files/" + experiment + "/traffic.json"
-        self.agent_data_file = "output_files/" + experiment + "_AGENT_DATA.csv"
+        self.agent_data_file = "output_files/" + experiment + "/agent_data.csv"
+        self.agent_checkpoint_data_file = "output_files/" + experiment + "/checkpoint_data.csv"
 
         # Reading traffic_json config file or using the defaults
         with open(traffic_json_file, "r") as read_file:
@@ -43,9 +46,9 @@ class TrafficModel(mesa.Model):
         self.lane_width = self.height / self.n_lanes
         self.height_unit = self.height / (self.n_lanes * 2)  # used to calc where to put an agent (lane-based)
         self.nodes = []
-        self.killed_drivers = []
-        self.drivers_schedule = mesa.time.BaseScheduler(self)
-        self.schedule = self.drivers_schedule # for datacollector to work
+        self.drivers = []
+        self.checkpoint_stamps = []
+        self.schedule = mesa.time.BaseScheduler(self)
         self.lights_schedule = mesa.time.StagedActivation(self)
         self.space = mesa.space.ContinuousSpace(self.width, self.height, self.torus)
 
@@ -85,12 +88,12 @@ class TrafficModel(mesa.Model):
                                            desired_distance=driver_json["desired_distance"],
                                            strategy=driver_json["strategy"])
                 self.space.place_agent(driver, driver.pos[0])
-                self.drivers_schedule.add(driver)
-            self.n_agents = len(self.drivers_schedule.agents)
+                self.schedule.add(driver)
+                self.drivers.append(driver)
+            self.n_agents = len(self.schedule.agents)
             self.setup_delays()
 
         self.data_collector_init()
-
 
     # Creates a node with equal distances
     def make_nodes(self):
@@ -126,12 +129,12 @@ class TrafficModel(mesa.Model):
                             end_node=end_node,
                             strategy=None)
             self.space.place_agent(driver, pos)
-            self.drivers_schedule.add(driver)
+            self.schedule.add(driver)
 
     def create_agent(self, unique_id, start, end, lane, velocity, max_speed, acceleration, desired_distance, strategy):
         pos = (self.nodes[start].pos[0], self.height_unit + lane * self.height_unit * 2)
-        if lane > self.n_lanes-1:
-            raise Exception("The driver can not be on line",lane)
+        if lane > self.n_lanes - 1:
+            raise Exception("The driver can not be on line", lane)
         return Driver(driver_id=unique_id,
                       model=self,
                       pos=pos,
@@ -146,23 +149,21 @@ class TrafficModel(mesa.Model):
                       strategy=strategy)
 
     def step(self):
-        self.drivers_schedule.step()
+        self.schedule.step()
         self.lights_schedule.step()
         self.datacollector.collect(self)
 
-
-
     def kill_driver(self, unique_id):
-        for d in self.drivers_schedule.agents:
+        for d in self.drivers:
             if d.unique_id is unique_id:
-                self.killed_drivers.append(d)
-                self.drivers_schedule.remove(self.killed_drivers[-1])
-                self.space.remove_agent(self.killed_drivers[-1])
+                d.is_alive = False
+                self.schedule.remove(d)
+                self.space.remove_agent(d)
                 return
 
     def setup_delays(self):
         delays_on_lanes = [0] * self.n_lanes
-        for driver in self.drivers_schedule.agents:
+        for driver in self.schedule.agents:
             driver.delay = delays_on_lanes[driver.current_lane[0]]
             delays_on_lanes[driver.current_lane[0]] += self.delay_time
 
@@ -172,15 +173,16 @@ class TrafficModel(mesa.Model):
         # model_data.to_csv("output_files/model_data.csv")
         agent_data.to_csv(self.agent_data_file)
 
+
+        pd.DataFrame(self.checkpoint_stamps).to_csv(self.agent_checkpoint_data_file)
+
     def data_collector_init(self):
         self.datacollector = DataCollector(
-            # model_reporters={"agents_count": lambda m: m.n_agents-len(self.killed_drivers)},
             agent_reporters={
                 "X": lambda a: a.pos[0],
-                "Y":lambda a : a.pos[1],
-                "velocity":lambda a: a.velocity,
-                "current_lane": lambda a: a.current_lane[0],
+                "Y": lambda a: a.pos[1],
+                "Velocity": lambda a: a.velocity,
+                "Current_lane": lambda a: a.current_lane[0],
+                "Is_alive": lambda a: a.is_alive
             }
         )
-
-

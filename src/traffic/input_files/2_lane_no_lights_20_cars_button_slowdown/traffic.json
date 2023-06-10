@@ -1,8 +1,0 @@
-{
-  "width": 1200,
-  "height": 200,
-  "n_lane": 2,
-  "torus": false,
-  "fps": 500,
-  "delay_time": 150
-}

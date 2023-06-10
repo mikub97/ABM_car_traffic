@@ -34,6 +34,7 @@ class Driver(mesa.Agent):
 
         """
         super().__init__(driver_id, model)
+        self.is_alive = False
         self.pos = pos,
         self.car_size = car_size
         self.max_speed = max_speed,
@@ -45,6 +46,7 @@ class Driver(mesa.Agent):
         self.end_node = end_node
         self.delay = 0
         self.longlive = 0
+        self.checkpoint_timestamps = []
 
         # marking all previous nodes as already passed
         # and the rest that are still to be reached
@@ -62,7 +64,7 @@ class Driver(mesa.Agent):
     def driver_ahead(self):
         min_distance = float("inf")
         ahead = None
-        for d in self.model.drivers_schedule.agents:
+        for d in self.model.schedule.agents:
             if (d.unique_id != self.unique_id) & (d.current_lane[0] is self.current_lane[0]):
                 dist = d.pos[0] - self.pos[0]
                 if min_distance > dist > 0:
@@ -79,6 +81,14 @@ class Driver(mesa.Agent):
         self.longlive += 1
         if self.longlive < self.delay:
             return
+        elif not self.is_alive:
+            self.is_alive = True
+            self.model.checkpoint_stamps.append({
+                "DriverID": self.unique_id,
+                "NodeID" : 0,
+                'X': self.pos[0],
+                'current_lane': self.current_lane[0],
+                'time': self.longlive})
 
         node_ahead = self.node_ahead()
         driver_ahead = self.driver_ahead()
@@ -94,13 +104,21 @@ class Driver(mesa.Agent):
         if node_ahead.pos[0] <= new_pos[0]:  # next_node is reached
             self.node_checkpoints[node_ahead.unique_id] = True  # set that checkpoint as reached
             # if the checkpoint is the last node in the model, kill the agent
+            self.model.checkpoint_stamps.append({
+                "DriverID": self.unique_id,
+                "NodeID": node_ahead.unique_id,
+                'X': self.pos[0],
+                'current_lane': self.current_lane[0],
+                'time': self.longlive})
+
             if node_ahead.unique_id == self.end_node or node_ahead.unique_id == self.model.n_nodes - 1:
                 self.kill()
                 return
-            self.switch_lane()
+            # self.switch_lane()
 
     def kill(self):
         self.model.kill_driver(self.unique_id)
+        self.is_alive = False
 
     def calc_v(self, node_ahead, driver_ahead):
         """
@@ -121,15 +139,15 @@ class Driver(mesa.Agent):
         if is_freeway:
             if self.velocity[0] < self.max_speed[0]:
                 self.velocity[0] += self.acceleration[0]
-            if self.velocity[0]>self.max_speed[0]:
-                self.velocity[0]=self.max_speed[0]
+            if self.velocity[0] > self.max_speed[0]:
+                self.velocity[0] = self.max_speed[0]
             return
 
         actual_distance = closer_obj_ahead.pos[0] - self.pos[0]
         if self.velocity[0] < self.max_speed[0]:
             max_speed = self.velocity[0] + self.acceleration[0]
-            if max_speed>self.max_speed[0]:
-                max_speed=self.max_speed[0]
+            if max_speed > self.max_speed[0]:
+                max_speed = self.max_speed[0]
         else:
             max_speed = self.max_speed[0]
         self.velocity[0] = max_speed * 0.5 * (

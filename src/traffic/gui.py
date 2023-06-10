@@ -23,7 +23,7 @@ class Car(pygame.sprite.Sprite):
         self.image.fill(WHITE)  # Replace with car image loading or drawing logic
         self.rect = self.image.get_rect()
         self.rect.center = (driver.pos[0], 0)
-        self.is_visible = False
+        self.is_visible = driver.is_alive
         self.text_surface = FONT.render(str(self.driver.unique_id), True, BLACK)
         self.text_rect = self.text_surface.get_rect(center=self.rect.center)
         pygame.Surface.blit(self.image, self.text_surface, (driver.car_size / 4, 0))
@@ -33,7 +33,7 @@ class Car(pygame.sprite.Sprite):
             self.kill()
             print(f"The driver {self.driver.unique_id} is DEAD")
             return
-        self.is_visible = self.driver.pos[0] > 0
+        self.is_visible = self.driver.is_alive
         self.rect.x = self.driver.pos[0]
         self.rect.y = self.driver.pos[1]
 
@@ -53,7 +53,7 @@ class GUI:
         pygame.display.set_caption("Traffic")
 
         self.cars = pygame.sprite.Group()
-        for driver in self.model.drivers_schedule.agents:
+        for driver in self.model.schedule.agents:
             self.cars.add(Car(driver))
 
     def handle_events(self):
@@ -67,18 +67,22 @@ class GUI:
         keys = pygame.key.get_pressed()
         slow_down_drivers = []
         # Perform actions based on key states
-        if keys[K_0]:
-            slow_down_drivers.append(0)
-        for driver in self.model.drivers_schedule.agents:
-            if driver.unique_id in slow_down_drivers:
-                driver.max_speed = (driver.max_speed[0]-0.0001,)
-                print("Driver 1 max speed is",driver.max_speed)
+        if keys[K_9]:
+            self.model.drivers[0].max_speed = (self.model.drivers[0].max_speed[0] - 0.001,)
+            print("Driver 1 max speed is", self.model.drivers[0].max_speed)
+        elif keys[K_0]:
+            self.model.drivers[0].max_speed = (self.model.drivers[0].max_speed[0] + 0.001,)
+            print("Driver 1 max speed is", self.model.drivers[0].max_speed)
+
 
     def update(self):
         self.model.step()
-        if (len(self.model.killed_drivers) == self.model.n_agents):
-            self.model.data_collector_save()
-            self.is_running=False
+        flag = False
+        for d in self.model.drivers:
+            if d.is_alive:
+                flag = True
+        if not flag:
+            self.is_running = False
 
     def render(self):
         self.screen.fill((255, 255, 255))
@@ -130,6 +134,7 @@ class GUI:
             self.update()
             self.render()
             self.clock.tick(self.fps)
+        self.model.data_collector_save()
         pygame.quit()
 
 
