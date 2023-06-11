@@ -28,6 +28,11 @@
       "pos": 900,
       "durations": [300,100,500],
       "state": "green"
+    },
+     {
+      "pos": 1200,
+      "durations": [0,0,1],
+      "state": "green"
     }
 
 

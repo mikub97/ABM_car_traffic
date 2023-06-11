@@ -63,15 +63,7 @@ class TrafficModel(mesa.Model):
                             )
                 self.nodes.append(node)
                 self.lights_schedule.add(node)
-            node = Node(model=self,
-                        unique_id=i + 1,
-                        pos=(self.width, 0),
-                        durations=[0, 0, 1],  # red,yellow,green
-                        state="green")
-
-            self.nodes.append(node)
             self.n_nodes = len(self.nodes)
-            self.lights_schedule.add(node)
 
         with open(drivers_json_file, "r") as read_file:
             data = json.load(read_file)
