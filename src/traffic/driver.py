@@ -1,3 +1,4 @@
+import math
 import random
 
 import mesa
@@ -97,8 +98,14 @@ class Driver(mesa.Agent):
         self.calc_v(node_ahead, driver_ahead)
         new_pos = self.pos + self.velocity
 
+
         if new_pos[0] <= self.model.nodes[-1].pos[0]:
             self.model.space.move_agent(self, new_pos)
+            # if the leader is a slow-ass bitch
+
+        if driver_ahead is not None:
+            if driver_ahead.velocity[0] - self.max_speed[0] < -0.001 and driver_ahead.pos[0] - self.pos[0] < 1.1 * self.desired_distance:
+                self.switch_lane_if_possible()
 
         # check if a checkpoint is reached
         if node_ahead.pos[0] <= new_pos[0]:  # next_node is reached
@@ -181,6 +188,12 @@ class Driver(mesa.Agent):
         new_pos = (self.pos[0], self.pos[1] + self.model.lane_width)  # TODO add 'if there is a free space in the lane'
         self.model.space.move_agent(self, new_pos)
 
+    def teleport_to_lane(self,lane):
+        self.current_lane = (lane,)
+        new_pos = (self.pos[0], (lane+1.5)+self.model.lane_width)  # TODO add 'if there is a free space in the lane'
+        self.model.space.move_agent(self, new_pos)
+
+
     def __str__(self):
         return f"Driver {self.unique_id} at pos({self.pos}),\n lane({self.current_lane[0]}), start_node({self.start_node})" \
                f", end_node({self.end_node}), velocity({self.velocity})"
@@ -197,3 +210,30 @@ class Driver(mesa.Agent):
     #         "start_node":self.start_node,
     #         "end_node":self.end_node
     #     }
+    def switch_lane_if_possible(self):
+        right_possible,left_possible = False, False
+        if self.current_lane[0]>0:
+            left_possible = True
+        if self.current_lane[0]<self.model.n_lanes-1:
+            right_possible = True
+
+        for driver in self.model.drivers:
+
+            if driver.is_alive and (abs(self.pos[0] - driver.pos[0])<0.8*self.desired_distance) :
+                if driver.current_lane[0]==self.current_lane[0]-1:
+                    left_possible=False
+                elif driver.current_lane[0]==self.current_lane[0]+1:
+                    right_possible=False
+        if right_possible and left_possible:
+            if random.choice([True,False]):
+                self.teleport_right()
+            else:
+                self.teleport_right()
+            return
+        if right_possible:
+            self.teleport_right()
+        if left_possible:
+            self.teleport_left()
+
+
+

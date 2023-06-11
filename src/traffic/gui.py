@@ -74,6 +74,13 @@ class GUI:
             self.model.drivers[0].max_speed = (self.model.drivers[0].max_speed[0] + 0.001,)
             print("Driver 1 max speed is", self.model.drivers[0].max_speed)
 
+        if keys[K_1]:
+            self.model.drivers[10].max_speed = (self.model.drivers[10].max_speed[0] - 0.001,)
+            print("Driver 10 max speed is", self.model.drivers[10].max_speed)
+        elif keys[K_2]:
+            self.model.drivers[10].max_speed = (self.model.drivers[10].max_speed[0] + 0.001,)
+            print("Driver 10 max speed is", self.model.drivers[10].max_speed)
+
 
     def update(self):
         self.model.step()
