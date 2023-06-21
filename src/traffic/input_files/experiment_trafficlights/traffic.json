@@ -3,6 +3,8 @@
   "height": 200,
   "n_lane": 3,
   "separation_k": 0.5,
+  "random_agents": true,
+  "n_agents" : 50,
   "torus": false,
   "delay_time": 150,
   "fps": 100

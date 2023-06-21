@@ -82,7 +82,13 @@ class Driver(mesa.Agent):
         self.longlive += 1
         if self.longlive < self.delay:
             return
-        elif not self.is_alive:
+
+        node_ahead = self.node_ahead()
+        driver_ahead = self.driver_ahead()
+
+        if not self.is_alive:
+            if driver_ahead is not None and (driver_ahead.pos[0]-self.pos[0])<self.desired_distance:
+                return
             self.is_alive = True
             self.model.checkpoint_stamps.append({
                 "DriverID": self.unique_id,
@@ -91,8 +97,7 @@ class Driver(mesa.Agent):
                 'current_lane': self.current_lane[0],
                 'time': self.longlive})
 
-        node_ahead = self.node_ahead()
-        driver_ahead = self.driver_ahead()
+
 
         # (re)calculate velocity and the new position
         self.calc_v(node_ahead, driver_ahead)

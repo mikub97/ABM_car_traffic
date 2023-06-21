@@ -26,6 +26,7 @@ class TrafficModel(mesa.Model):
         Args:
 
         """
+        random_agents = False
         self.datacollector = None
         drivers_json_file = "input_files/" + experiment + "/drivers.json"
         nodes_json_file = "input_files/" + experiment + "/lights.json"
@@ -41,7 +42,9 @@ class TrafficModel(mesa.Model):
             self.n_lanes = data["n_lane"]
             self.torus = data["torus"]
             self.fps = data["fps"]
+            self.n_agents =  data["n_agents"]
             self.delay_time = data["delay_time"]
+            random_agents = data["random_agents"]
 
         self.lane_width = self.height / self.n_lanes
         self.height_unit = self.height / (self.n_lanes * 2)  # used to calc where to put an agent (lane-based)
@@ -64,26 +67,28 @@ class TrafficModel(mesa.Model):
                 self.nodes.append(node)
                 self.lights_schedule.add(node)
             self.n_nodes = len(self.nodes)
-
-        with open(drivers_json_file, "r") as read_file:
-            data = json.load(read_file)
-            for driver_json in data:
-                driver = self.create_agent(unique_id=driver_json["unique_id"],
-                                           # start=driver_json["start"],
-                                           # end=driver_json["end"],
-                                           start=0,  # all drivers starts at 0, finishes at the last node
-                                           end=len(self.nodes) - 1,
-                                           lane=driver_json["lane"],
-                                           velocity=np.array(driver_json["velocity"]),
-                                           max_speed=driver_json["max_speed"],
-                                           acceleration=driver_json["acceleration"],
-                                           desired_distance=driver_json["desired_distance"],
-                                           strategy=driver_json["strategy"])
-                self.space.place_agent(driver, driver.pos[0])
-                self.schedule.add(driver)
-                self.drivers.append(driver)
-            self.n_agents = len(self.schedule.agents)
-            self.setup_delays()
+        if not random_agents:
+            with open(drivers_json_file, "r") as read_file:
+                data = json.load(read_file)
+                for driver_json in data:
+                    driver = self.create_agent(unique_id=driver_json["unique_id"],
+                                               # start=driver_json["start"],
+                                               # end=driver_json["end"],
+                                               start=0,  # all drivers starts at 0, finishes at the last node
+                                               end=len(self.nodes) - 1,
+                                               lane=driver_json["lane"],
+                                               velocity=np.array(driver_json["velocity"]),
+                                               max_speed=driver_json["max_speed"],
+                                               acceleration=driver_json["acceleration"],
+                                               desired_distance=driver_json["desired_distance"],
+                                               strategy=driver_json["strategy"])
+                    self.space.place_agent(driver, driver.pos[0])
+                    self.schedule.add(driver)
+                    self.drivers.append(driver)
+                self.n_agents = len(self.schedule.agents)
+                self.setup_delays()
+        else:
+            self.make_random_agents()
 
         self.data_collector_init()
 
@@ -97,8 +102,6 @@ class TrafficModel(mesa.Model):
             self.lights_schedule.add(node)
 
     def make_random_agents(self):
-        print("MAKE RANDOM AGENTS NOT IMPLEMENTED")
-        return
         """
         Create self.n_agents agents
         """
@@ -122,6 +125,8 @@ class TrafficModel(mesa.Model):
                             strategy=None)
             self.space.place_agent(driver, pos)
             self.schedule.add(driver)
+            self.drivers.append(driver)
+        self.setup_delays()
 
     def create_agent(self, unique_id, start, end, lane, velocity, max_speed, acceleration, desired_distance, strategy):
         pos = (self.nodes[start].pos[0], self.height_unit + lane * self.height_unit * 2)
