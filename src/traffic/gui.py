@@ -31,7 +31,7 @@ class Car(pygame.sprite.Sprite):
     def update(self):
         if self.driver is None or self.driver.pos is None:
             self.kill()
-            print(f"The driver {self.driver.unique_id} is DEAD")
+            # print(f"The driver {self.driver.unique_id} is DEAD")
             return
         self.is_visible = self.driver.is_alive
         self.rect.x = self.driver.pos[0]
@@ -50,6 +50,7 @@ class GUI:
         self.lane_width = self.model.lane_width
         self.node_size = 20
         self.fps = model.fps
+        self.t = 0
         pygame.display.set_caption("Traffic")
 
         self.cars = pygame.sprite.Group()
@@ -63,6 +64,8 @@ class GUI:
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     self.is_running = False
+                if event.key == K_SPACE:
+                    print(f"Step nr. {self.t}")
 
         keys = pygame.key.get_pressed()
         slow_down_drivers = []
@@ -73,7 +76,6 @@ class GUI:
         elif keys[K_0]:
             self.model.drivers[0].max_speed = (self.model.drivers[0].max_speed[0] + 0.001,)
             print("Driver 1 max speed is", self.model.drivers[0].max_speed)
-
         if keys[K_1]:
             self.model.drivers[10].max_speed = (self.model.drivers[10].max_speed[0] - 0.001,)
             print("Driver 10 max speed is", self.model.drivers[10].max_speed)
@@ -84,6 +86,7 @@ class GUI:
 
     def update(self):
         self.model.step()
+        self.t+=1
         flag = False
         for d in self.model.drivers:
             if d.is_alive:

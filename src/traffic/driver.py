@@ -47,7 +47,7 @@ class Driver(mesa.Agent):
         self.end_node = end_node
         self.delay = 0
         self.longlive = 0
-        self.checkpoint_timestamps = []
+
 
         # marking all previous nodes as already passed
         # and the rest that are still to be reached
@@ -90,13 +90,6 @@ class Driver(mesa.Agent):
             if driver_ahead is not None and (driver_ahead.pos[0]-self.pos[0])<self.desired_distance:
                 return
             self.is_alive = True
-            self.model.checkpoint_stamps.append({
-                "DriverID": self.unique_id,
-                "NodeID" : 0,
-                'X': self.pos[0],
-                'current_lane': self.current_lane[0],
-                'time': self.longlive})
-
 
 
         # (re)calculate velocity and the new position
@@ -116,13 +109,6 @@ class Driver(mesa.Agent):
         if node_ahead.pos[0] <= new_pos[0]:  # next_node is reached
             self.node_checkpoints[node_ahead.unique_id] = True  # set that checkpoint as reached
             # if the checkpoint is the last node in the model, kill the agent
-            self.model.checkpoint_stamps.append({
-                "DriverID": self.unique_id,
-                "NodeID": node_ahead.unique_id,
-                'X': self.pos[0],
-                'current_lane': self.current_lane[0],
-                'time': self.longlive})
-
             if node_ahead.unique_id == self.end_node or node_ahead.unique_id == self.model.n_nodes - 1:
                 self.kill()
                 return

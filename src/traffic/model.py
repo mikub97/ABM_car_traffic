@@ -26,13 +26,11 @@ class TrafficModel(mesa.Model):
         Args:
 
         """
-        random_agents = False
         self.datacollector = None
         drivers_json_file = "input_files/" + experiment + "/drivers.json"
         nodes_json_file = "input_files/" + experiment + "/lights.json"
         traffic_json_file = "input_files/" + experiment + "/traffic.json"
         self.agent_data_file = "output_files/" + experiment + "/agent_data.csv"
-        self.agent_checkpoint_data_file = "output_files/" + experiment + "/checkpoint_data.csv"
 
         # Reading traffic_json config file or using the defaults
         with open(traffic_json_file, "r") as read_file:
@@ -42,7 +40,7 @@ class TrafficModel(mesa.Model):
             self.n_lanes = data["n_lane"]
             self.torus = data["torus"]
             self.fps = data["fps"]
-            self.n_agents =  data["n_agents"]
+            self.n_agents = data["n_agents"]
             self.delay_time = data["delay_time"]
             random_agents = data["random_agents"]
 
@@ -50,7 +48,6 @@ class TrafficModel(mesa.Model):
         self.height_unit = self.height / (self.n_lanes * 2)  # used to calc where to put an agent (lane-based)
         self.nodes = []
         self.drivers = []
-        self.checkpoint_stamps = []
         self.schedule = mesa.time.BaseScheduler(self)
         self.lights_schedule = mesa.time.StagedActivation(self)
         self.space = mesa.space.ContinuousSpace(self.width, self.height, self.torus)
@@ -88,7 +85,7 @@ class TrafficModel(mesa.Model):
                 self.n_agents = len(self.schedule.agents)
                 self.setup_delays()
         else:
-            self.make_random_agents()
+            self.make_random_agents(0.5,0.2,40)
 
         self.data_collector_init()
 
@@ -101,7 +98,7 @@ class TrafficModel(mesa.Model):
             self.nodes.append(node)
             self.lights_schedule.add(node)
 
-    def make_random_agents(self):
+    def make_random_agents(self, max_speed_avg , max_speed_dev, desired_distance):
         """
         Create self.n_agents agents
         """
@@ -115,10 +112,10 @@ class TrafficModel(mesa.Model):
                             model=self,
                             pos=pos,
                             car_size=20,
-                            velocity=np.array([random.random() * 3, 0]),
-                            max_speed=0.01 + (random.random() + 0.2),
+                            velocity=np.array([random.random() * max_speed_avg, 0]),
+                            max_speed=max_speed_avg + (random.random()*2-1)*max_speed_dev,
                             acceleration=0.001,
-                            desired_distance=40,
+                            desired_distance=desired_distance,
                             current_lane=current_lane,
                             start_node=start_node,
                             end_node=end_node,
@@ -170,8 +167,6 @@ class TrafficModel(mesa.Model):
         # model_data.to_csv("output_files/model_data.csv")
         agent_data.to_csv(self.agent_data_file)
 
-
-        pd.DataFrame(self.checkpoint_stamps).to_csv(self.agent_checkpoint_data_file)
 
     def data_collector_init(self):
         self.datacollector = DataCollector(
