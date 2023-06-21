@@ -101,7 +101,7 @@ class Driver(mesa.Agent):
             self.model.space.move_agent(self, new_pos)
 
         # check if a checkpoint is reached
-        if node_ahead.pos[0] <= new_pos[0]:  # next_node is reached
+        if node_ahead.pos[0] <= new_pos[0]:  # next_node is reached # TODO
             self.node_checkpoints[node_ahead.unique_id] = True  # set that checkpoint as reached
             # if the checkpoint is the last node in the model, kill the agent
             self.model.checkpoint_stamps.append({
@@ -122,7 +122,7 @@ class Driver(mesa.Agent):
 
     def calc_v(self, node_ahead, driver_ahead):
         """
-
+            recalculates the self's velocity
         """
         is_freeway = False
         if driver_ahead is None:

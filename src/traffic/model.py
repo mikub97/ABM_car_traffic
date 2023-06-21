@@ -26,7 +26,7 @@ class TrafficModel(mesa.Model):
         Args:
 
         """
-        self.datacollector = None
+        self.datacollector = None # for generating output data
         drivers_json_file = "input_files/" + experiment + "/drivers.json"
         nodes_json_file = "input_files/" + experiment + "/lights.json"
         traffic_json_file = "input_files/" + experiment + "/traffic.json"
