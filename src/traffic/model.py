@@ -85,7 +85,7 @@ class TrafficModel(mesa.Model):
                 self.n_agents = len(self.schedule.agents)
                 self.setup_delays()
         else:
-            self.make_random_agents(0.5,0.2,40)
+            self.make_random_agents(0.4,0.2,40)
 
         self.data_collector_init()
 
