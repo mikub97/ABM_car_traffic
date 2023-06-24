@@ -3,6 +3,7 @@
   "height": 200,
   "n_lane": 2,
   "torus": false,
+  "n_agents" : 20,
   "fps": 300,
   "delay_time": 150
 }

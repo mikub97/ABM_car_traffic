@@ -16,78 +16,80 @@ class TrafficModel(mesa.Model):
     Flocker model class. Handles agent creation, placement and scheduling.
     """
 
-    def __init__(
-            self,
-            experiment
-    ):
-        """
-        Create a new Traffic model.
+    def __init__(self, experiment, read_agents=True, read_nodes=True):
 
-        Args:
-
-        """
-        self.datacollector = None
         drivers_json_file = "input_files/" + experiment + "/drivers.json"
         nodes_json_file = "input_files/" + experiment + "/lights.json"
         traffic_json_file = "input_files/" + experiment + "/traffic.json"
         self.agent_data_file = "output_files/" + experiment + "/agent_data.csv"
+        self.finished = False
+        self.delay_time = None
+        self.fps = None
+        self.torus = None
+        self.n_lanes = None
+        self.height = None
+        self.n_nodes = None
+        self.n_agents = None
+        self.width = None
+        self.datacollector = None
+        self.time = 0
+        self.measure_times = {"start":None, "end":None}
+        # self.first_node_of_interest_pos_X = 400
+        # self.second_node_of_interest_pos_X = 500
+        # self.was_first_node_of_interest_reached = False
+        # self.count_second_node_of_interest_pos_X = 0
 
-        # Reading traffic_json config file or using the defaults
-        with open(traffic_json_file, "r") as read_file:
-            data = json.load(read_file)
-            self.width = data["width"]
-            self.height = data["height"]
-            self.n_lanes = data["n_lane"]
-            self.torus = data["torus"]
-            self.fps = data["fps"]
-            self.n_agents = data["n_agents"]
-            self.delay_time = data["delay_time"]
-            random_agents = data["random_agents"]
+        # Reading traffic_json config file
+        self.read_traffic_from_file(traffic_json_file)
 
-        self.lane_width = self.height / self.n_lanes
-        self.height_unit = self.height / (self.n_lanes * 2)  # used to calc where to put an agent (lane-based)
         self.nodes = []
         self.drivers = []
         self.schedule = mesa.time.BaseScheduler(self)
         self.lights_schedule = mesa.time.StagedActivation(self)
         self.space = mesa.space.ContinuousSpace(self.width, self.height, self.torus)
 
-        with open(nodes_json_file, "r") as read_file:
-            data = json.load(read_file)
-            for i, node_json in enumerate(data):
-                node = Node(model=self,
-                            unique_id=i,
-                            pos=(node_json["pos"], 0),
-                            durations=node_json["durations"],  # red,yellow,green
-                            state=node_json["state"]
-                            )
-                self.nodes.append(node)
-                self.lights_schedule.add(node)
-            self.n_nodes = len(self.nodes)
-        if not random_agents:
-            with open(drivers_json_file, "r") as read_file:
-                data = json.load(read_file)
-                for driver_json in data:
-                    driver = self.create_agent(unique_id=driver_json["unique_id"],
-                                               # start=driver_json["start"],
-                                               # end=driver_json["end"],
-                                               start=0,  # all drivers starts at 0, finishes at the last node
-                                               end=len(self.nodes) - 1,
-                                               lane=driver_json["lane"],
-                                               velocity=np.array(driver_json["velocity"]),
-                                               max_speed=driver_json["max_speed"],
-                                               acceleration=driver_json["acceleration"],
-                                               desired_distance=driver_json["desired_distance"],
-                                               strategy=driver_json["strategy"])
-                    self.space.place_agent(driver, driver.pos[0])
-                    self.schedule.add(driver)
-                    self.drivers.append(driver)
-                self.n_agents = len(self.schedule.agents)
-                self.setup_delays()
+        # Reading nodes_json config file
+        if read_nodes:
+            self.read_nodes_from_file(nodes_json_file)
         else:
-            self.make_random_agents(0.5,0.2,40)
+            self.make_nodes()
+        # Reading drivers_json config file
+        if read_agents:
+            self.read_agent_from_file(drivers_json_file)
 
+        # Initiation of Mesa data collector
         self.data_collector_init()
+
+    def step(self):
+        if not self.finished:
+            self.time+=1
+            if len(self.schedule.agents)==0:
+                self.finished=True
+            self.schedule.step()
+            self.lights_schedule.step()
+            self.datacollector.collect(self)
+        else:
+            return
+    def setup_delays(self):
+        delays_on_lanes = [0] * self.n_lanes
+        for driver in self.schedule.agents:
+            driver.delay = delays_on_lanes[driver.current_lane[0]]
+            delays_on_lanes[driver.current_lane[0]] += self.delay_time
+
+    def data_collector_save(self):
+        agent_data = self.datacollector.get_agent_vars_dataframe()
+        agent_data.to_csv(self.agent_data_file)
+
+    def data_collector_init(self):
+        self.datacollector = DataCollector(
+            agent_reporters={
+                "X": lambda a: a.pos[0],
+                "Y": lambda a: a.pos[1],
+                "Velocity": lambda a: a.velocity,
+                "Current_lane": lambda a: a.current_lane[0],
+                "Is_alive": lambda a: a.is_alive
+            }
+        )
 
     # Creates a node with equal distances
     def make_nodes(self):
@@ -98,11 +100,13 @@ class TrafficModel(mesa.Model):
             self.nodes.append(node)
             self.lights_schedule.add(node)
 
-    def make_random_agents(self, max_speed_avg , max_speed_dev, desired_distance):
+    def make_random_agents(self, n_agents, max_speed_avg, max_speed_dev, desired_distance_avg,
+                           desired_distance_dev, acceleration_avg, acceleration_dev,
+                           starting_id = 0):
         """
         Create self.n_agents agents
         """
-        for i in range(self.n_agents):
+        for i in range(starting_id, starting_id+n_agents):
             start_node = 0  # random.randint(0, 3)
             end_node = self.n_nodes - 1  # random.randint(start_node + 1, self.n_nodes - 1)
             current_lane = random.randint(0, self.n_lanes - 1)
@@ -113,9 +117,9 @@ class TrafficModel(mesa.Model):
                             pos=pos,
                             car_size=20,
                             velocity=np.array([random.random() * max_speed_avg, 0]),
-                            max_speed=max_speed_avg + (random.random()*2-1)*max_speed_dev,
-                            acceleration=0.001,
-                            desired_distance=desired_distance,
+                            max_speed=max_speed_avg + (random.random() * 2 - 1) * max_speed_dev,
+                            acceleration=acceleration_avg + (random.random() * 2 - 1) * acceleration_dev,
+                            desired_distance=desired_distance_avg + (random.random() * 2 - 1) * desired_distance_dev,
                             current_lane=current_lane,
                             start_node=start_node,
                             end_node=end_node,
@@ -126,7 +130,8 @@ class TrafficModel(mesa.Model):
         self.setup_delays()
 
     def create_agent(self, unique_id, start, end, lane, velocity, max_speed, acceleration, desired_distance, strategy):
-        pos = (self.nodes[start].pos[0], self.height_unit + lane * self.height_unit * 2)
+        height_unit = self.height / (self.n_lanes * 2)
+        pos = (self.nodes[start].pos[0], height_unit + lane * height_unit * 2)
         if lane > self.n_lanes - 1:
             raise Exception("The driver can not be on line", lane)
         return Driver(driver_id=unique_id,
@@ -142,39 +147,49 @@ class TrafficModel(mesa.Model):
                       end_node=end,
                       strategy=strategy)
 
-    def step(self):
-        self.schedule.step()
-        self.lights_schedule.step()
-        self.datacollector.collect(self)
+    def read_agent_from_file(self, filename):
+        with open(filename, "r") as read_file:
+            data = json.load(read_file)
+            for driver_json in data:
+                driver = self.create_agent(unique_id=driver_json["unique_id"],
+                                           # start=driver_json["start"],
+                                           # end=driver_json["end"],
+                                           start=0,  # all drivers starts at 0, finishes at the last node
+                                           end=len(self.nodes) - 1,
+                                           lane=driver_json["lane"],
+                                           velocity=np.array(driver_json["velocity"]),
+                                           max_speed=driver_json["max_speed"],
+                                           acceleration=driver_json["acceleration"],
+                                           desired_distance=driver_json["desired_distance"],
+                                           strategy=driver_json["strategy"])
+                self.space.place_agent(driver, driver.pos[0])
+                self.schedule.add(driver)
+                self.drivers.append(driver)
+            self.n_agents = len(self.schedule.agents)
+            self.setup_delays()
 
-    def kill_driver(self, unique_id):
-        for d in self.drivers:
-            if d.unique_id is unique_id:
-                d.is_alive = False
-                self.schedule.remove(d)
-                self.space.remove_agent(d)
-                return
+    def read_traffic_from_file(self, filename):
+        with open(filename, "r") as read_file:
+            data = json.load(read_file)
+            self.width = data["width"]
+            self.height = data["height"]
+            self.n_lanes = data["n_lane"]
+            self.torus = data["torus"]
+            self.fps = data["fps"]
+            self.n_agents = data["n_agents"]
+            self.delay_time = data["delay_time"]
+            self.n_nodes = data["n_nodes"]
 
-    def setup_delays(self):
-        delays_on_lanes = [0] * self.n_lanes
-        for driver in self.schedule.agents:
-            driver.delay = delays_on_lanes[driver.current_lane[0]]
-            delays_on_lanes[driver.current_lane[0]] += self.delay_time
-
-    def data_collector_save(self):
-        # model_data = self.datacollector.get_model_vars_dataframe()
-        agent_data = self.datacollector.get_agent_vars_dataframe()
-        # model_data.to_csv("output_files/model_data.csv")
-        agent_data.to_csv(self.agent_data_file)
-
-
-    def data_collector_init(self):
-        self.datacollector = DataCollector(
-            agent_reporters={
-                "X": lambda a: a.pos[0],
-                "Y": lambda a: a.pos[1],
-                "Velocity": lambda a: a.velocity,
-                "Current_lane": lambda a: a.current_lane[0],
-                "Is_alive": lambda a: a.is_alive
-            }
-        )
+    def read_nodes_from_file(self, filename):
+        with open(filename, "r") as read_file:
+            data = json.load(read_file)
+            for i, node_json in enumerate(data):
+                node = Node(model=self,
+                            unique_id=i,
+                            pos=(node_json["pos"], 0),
+                            durations=node_json["durations"],  # red,yellow,green
+                            state=node_json["state"]
+                            )
+                self.nodes.append(node)
+                self.lights_schedule.add(node)
+            self.n_nodes = len(self.nodes)

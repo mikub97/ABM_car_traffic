@@ -47,15 +47,15 @@ class GUI:
         self.screen = pygame.display.set_mode((model.width, model.height))
         self.width = self.model.width
         self.height = self.model.height
-        self.lane_width = self.model.lane_width
+        self.lane_width = model.height / model.n_lanes
+        self.height_unit = model.height / (model.n_lanes * 2)
         self.node_size = 20
         self.fps = model.fps
         self.t = 0
+        self.time_measures = []
         pygame.display.set_caption("Traffic")
 
-        self.cars = pygame.sprite.Group()
-        for driver in self.model.schedule.agents:
-            self.cars.add(Car(driver))
+        self.cars = None
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -66,6 +66,7 @@ class GUI:
                     self.is_running = False
                 if event.key == K_SPACE:
                     print(f"Step nr. {self.t}")
+                    self.time_measures.append(self.t)
 
         keys = pygame.key.get_pressed()
         slow_down_drivers = []
@@ -87,12 +88,17 @@ class GUI:
     def update(self):
         self.model.step()
         self.t+=1
-        flag = False
-        for d in self.model.drivers:
-            if d.is_alive:
-                flag = True
-        if not flag:
-            self.is_running = False
+
+        self.cars = pygame.sprite.Group()
+        for driver in self.model.schedule.agents:
+            if driver.is_alive:
+                self.cars.add(Car(driver))
+        # flag = False
+        # for d in self.model.drivers:
+        #     if d.is_alive:
+        #         flag = True
+        # if not flag:
+        #     self.is_running = False
 
     def render(self):
         self.screen.fill((255, 255, 255))
@@ -100,12 +106,7 @@ class GUI:
         self.draw_window()
         self.cars.update()
         self.draw_window()
-        visible_cars = pygame.sprite.Group()
-
-        for car in self.cars:
-            if car.is_visible:
-                visible_cars.add(car)
-        visible_cars.draw(self.screen)  # Draw all the sprites
+        self.cars.draw(self.screen)  # Draw all the sprites
         pygame.display.flip()
 
     def draw_node(self, node, is_final=False):
@@ -129,9 +130,10 @@ class GUI:
             pygame.draw.line(self.screen, WHITE, (node.pos[0], 0), (node.pos[0], self.height))
 
     def draw_window(self):
+        lane_width = self.model.height / self.model.n_lanes
         self.screen.fill(BLACK)
-        for i in range(3):
-            pygame.draw.line(self.screen, WHITE, (0, self.lane_width * i), (self.width, self.lane_width * i))
+        for i in range(self.model.n_lanes):
+            pygame.draw.line(self.screen, WHITE, (0, lane_width * i), (self.width, lane_width * i))
 
         for node in self.model.nodes[:-1]:
             self.draw_node(node, False)
@@ -139,7 +141,7 @@ class GUI:
 
     def run(self):
         pygame.display.flip()
-        while self.is_running:
+        while self.is_running and not self.model.finished:
             self.handle_events()
             self.update()
             self.render()
