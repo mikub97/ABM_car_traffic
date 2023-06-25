@@ -76,7 +76,8 @@ class TrafficModel(mesa.Model):
             driver.delay = delays_on_lanes[driver.current_lane[0]]
             delays_on_lanes[driver.current_lane[0]] += self.delay_time
 
-    def data_collector_save(self):
+    # time measurements not relevant here
+    def data_collector_save(self, tm = None):
         agent_data = self.datacollector.get_agent_vars_dataframe()
         agent_data.to_csv(self.agent_data_file)
 
