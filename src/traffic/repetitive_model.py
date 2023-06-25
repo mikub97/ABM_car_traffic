@@ -17,18 +17,29 @@ x_sessions = [
 
         "acceleration_avg": 1.5,
         "acceleration_dev": 0.3,
-        "n_lanes":3
+        "n_lanes": 3
 
     }
-    for v in [0.75,1,1.25,1.5,1.75,2]]
+    for v in [2]]
+
+
 class RepetitiveTrafficModel(TrafficModel):
 
     def __init__(self, experiment):
-        super().__init__(experiment, read_agents=False)
+        super().__init__(experiment,
+                         measure_settings={
+                                "x_start": 500,
+                                "x_end": 600,
+                                "measure_point_x": 500,
+                                "accepted_dist_delta": 10,
+                                "window_size": 100,
+                                "rolling_average_density_running_step": 5 ,
+                                "rolling_average_flow_running_step": 100
+                        },
+                         read_agents=False)
         self.measures_files = "output_files/" + experiment + "/measures_files.csv"
         self.finished = False
         self.sessions = x_sessions
-        self.session_times = []
         self.agentID_counter = 0
         self.session_counter = 0
         self.next_session()
@@ -37,19 +48,15 @@ class RepetitiveTrafficModel(TrafficModel):
         if not self.finished:
             super().step()
             if len(self.schedule.agents) == 0:
+                self.add_time_measures()
                 self.next_session()
 
     def next_session(self):
-        if len(self.session_times)>0:
-            self.session_times[-1]["end"]=self.time
-        if self.session_counter > len(self.sessions)-1:
+
+        if self.session_counter > len(self.sessions) - 1:
             self.finished = True
-            print(self.session_times)
             return
         session = self.sessions[self.session_counter]
-        print(session)
-        self.session_times.append({"session_counter":self.session_counter,
-                                   "start": self.time})
         self.session_counter += 1
         self.n_lanes = session["n_lanes"]
         super().make_random_agents(session["n_agents"], session["max_speed_avg"],
@@ -58,16 +65,14 @@ class RepetitiveTrafficModel(TrafficModel):
                                    session["acceleration_dev"], starting_id=self.agentID_counter)
         self.agentID_counter += session["n_agents"]
 
-
-    def data_collector_save(self,tm):
-        agent_data = self.datacollector.get_agent_vars_dataframe()
-        agent_data.to_csv(self.agent_data_file)
-        agent_data = pd.read_csv(self.agent_data_file)
-        agent_data["Velocity"] = agent_data["Velocity"].apply(lambda x: float(x.split(" ")[0].replace("[", "")))
+    def data_collector_save(self):
+        agent_data = self.datacollector.get_agent_vars_dataframe().reset_index()
+        agent_data["Velocity"] = agent_data["Velocity"].apply(lambda x: float(x[0]))
         agent_data["Velocity"] = agent_data["Velocity"].astype(float)
-        measures_data =collect_data(agent_data,sessions=self.sessions,measure_times=tm)
+        measures_data = collect_data(agent_data=agent_data,
+                                     sessions=self.sessions,
+                                     measure_times=self.time_measures,
+                                     measure_settings=self.measure_settings)
+        agent_data.to_csv(self.agent_data_file)
         measures_data.to_csv(self.measures_files)
-
-
-
-
+        print(measures_data.head())

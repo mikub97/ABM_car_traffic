@@ -16,7 +16,17 @@ class TrafficModel(mesa.Model):
     Flocker model class. Handles agent creation, placement and scheduling.
     """
 
-    def __init__(self, experiment, read_agents=True, read_nodes=True):
+    def __init__(self, experiment,
+                 measure_settings={
+                     "x_start": 500,
+                     "x_end": 600,
+                     "measure_point_x": 500,
+                     "accepted_dist_delta": 10,
+                     "window_size": 100,
+                     "rolling_average_density_running_step": 5,
+                     "rolling_average_flow_running_step": 100
+                 },
+                read_agents=True, read_nodes=True):
 
         drivers_json_file = "input_files/" + experiment + "/drivers.json"
         nodes_json_file = "input_files/" + experiment + "/lights.json"
@@ -33,15 +43,12 @@ class TrafficModel(mesa.Model):
         self.width = None
         self.datacollector = None
         self.time = 0
-        self.measure_times = {"start":None, "end":None}
-        # self.first_node_of_interest_pos_X = 400
-        # self.second_node_of_interest_pos_X = 500
-        # self.was_first_node_of_interest_reached = False
-        # self.count_second_node_of_interest_pos_X = 0
+        self.measure_settings = measure_settings
+        self.time_measures = []
+
 
         # Reading traffic_json config file
         self.read_traffic_from_file(traffic_json_file)
-
         self.nodes = []
         self.drivers = []
         self.schedule = mesa.time.BaseScheduler(self)
@@ -65,6 +72,7 @@ class TrafficModel(mesa.Model):
             self.time+=1
             if len(self.schedule.agents)==0:
                 self.finished=True
+                # self.add_time_measures()
             self.schedule.step()
             self.lights_schedule.step()
             self.datacollector.collect(self)
@@ -76,8 +84,19 @@ class TrafficModel(mesa.Model):
             driver.delay = delays_on_lanes[driver.current_lane[0]]
             delays_on_lanes[driver.current_lane[0]] += self.delay_time
 
+    def add_time_measures(self):
+        t_start = float("inf")
+        t_end = -float("inf")
+        for driver in self.drivers:
+            if driver.t_start < t_start:
+                t_start = driver.t_start
+            if driver.t_end > t_end:
+                t_end = driver.t_end
+        self.time_measures.append({"t_start": t_start, "t_end": t_end})
+
     # time measurements not relevant here
     def data_collector_save(self, tm = None):
+        print("calculating measures like flowrate not implemented for basic TrafficModel!")
         agent_data = self.datacollector.get_agent_vars_dataframe()
         agent_data.to_csv(self.agent_data_file)
 

@@ -8,7 +8,7 @@ from src.traffic.repetitive_model import RepetitiveTrafficModel
 
 experiment = "experiment-traffic-lights"
 os.makedirs(os.path.dirname("output_files/" + experiment + "/"), exist_ok=True)
-gui = GUI(RepetitiveTrafficModel(
+gui = GUI(TrafficModel(
     experiment=experiment,
     # read_nodes=True,
     # read_agents=False
