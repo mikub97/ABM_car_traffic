@@ -33,7 +33,7 @@ def density_running_avg(df, x_start, x_end, t_start, t_end, running_step=5):
 def calc_mean_velocity(df, t_start, t_end, x_start, x_end):
     mean_velocity = np.mean(df.loc[df["Is_alive"] == True
                                            & (df['X'] > x_start)
-                                           & (df["X"] < x_end)
+                                           & (df['X'] < x_end)
                                            & (df["Step"] > t_start)
                                            & (df["Step"] > t_end)]["Velocity"])
     return mean_velocity

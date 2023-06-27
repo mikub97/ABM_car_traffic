@@ -8,7 +8,7 @@ from src.traffic.model import TrafficModel
 
 x_sessions = [
     {
-        "n_agents": 25,
+        "n_agents": 75,
         "max_speed_avg": v,
         "max_speed_dev": 0.4,
 
@@ -20,7 +20,7 @@ x_sessions = [
         "n_lanes":3
 
     }
-    for v in [0.75,1,1.25,1.5,1.75,2]]
+    for v in [0.75,1,1.25,1.75,2,2.25]]
 class RepetitiveTrafficModel(TrafficModel):
 
     def __init__(self, experiment):
