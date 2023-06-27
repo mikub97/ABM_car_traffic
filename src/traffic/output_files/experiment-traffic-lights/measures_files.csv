@@ -1,2 +1,0 @@
-,n_agents,max_speed_avg,max_speed_dev,desired_distance_avg,desired_distance_dev,acceleration_avg,acceleration_dev,n_lanes,t_start,t_end,x_start,x_end,measure_point_x,accepted_dist_delta,window_size,average_velocity,rolling_average_density,rolling_average_flow
-0,25,2,0.4,30,0,1.5,0.3,3,211,907,500,600,500,10,100,2.0504446638464757,0.01792857142857139,4.666666666666667

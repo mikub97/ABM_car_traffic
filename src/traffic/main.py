@@ -1,16 +1,12 @@
-import json
-
 from src.traffic.gui import GUI
-from src.traffic.model import TrafficModel
 import os
-
 from src.traffic.repetitive_model import RepetitiveTrafficModel
+from src.traffic.settings import measure_settings, sessions, experiment
 
-experiment = "experiment-traffic-lights"
 os.makedirs(os.path.dirname("output_files/" + experiment + "/"), exist_ok=True)
-gui = GUI(TrafficModel(
+gui = GUI(RepetitiveTrafficModel(
     experiment=experiment,
-    # read_nodes=True,
-    # read_agents=False
+    measure_settings= measure_settings,
+    sessions=sessions
 ))
 gui.run()

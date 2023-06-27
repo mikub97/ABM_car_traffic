@@ -17,17 +17,8 @@ class TrafficModel(mesa.Model):
     """
 
     def __init__(self, experiment,
-                 measure_settings={
-                     "x_start": 500,
-                     "x_end": 600,
-                     "measure_point_x": 500,
-                     "accepted_dist_delta": 10,
-                     "window_size": 100,
-                     "rolling_average_density_running_step": 5,
-                     "rolling_average_flow_running_step": 100
-                 },
-                read_agents=True, read_nodes=True):
-
+                 measure_settings,read_agents=True, read_nodes=True):
+        random.seed(2990)
         drivers_json_file = "input_files/" + experiment + "/drivers.json"
         nodes_json_file = "input_files/" + experiment + "/lights.json"
         traffic_json_file = "input_files/" + experiment + "/traffic.json"
@@ -96,7 +87,7 @@ class TrafficModel(mesa.Model):
 
     # time measurements not relevant here
     def data_collector_save(self, tm = None):
-        print("calculating measures like flowrate not implemented for basic TrafficModel!")
+        print("calculating measures like flow rate not implemented for basic TrafficModel!")
         agent_data = self.datacollector.get_agent_vars_dataframe()
         agent_data.to_csv(self.agent_data_file)
 
@@ -174,7 +165,7 @@ class TrafficModel(mesa.Model):
                 driver = self.create_agent(unique_id=driver_json["unique_id"],
                                            # start=driver_json["start"],
                                            # end=driver_json["end"],
-                                           start=0,  # all drivers starts at 0, finishes at the last node
+                                           start=0,  # all drivers start at 0, finishes at the last node
                                            end=len(self.nodes) - 1,
                                            lane=driver_json["lane"],
                                            velocity=np.array(driver_json["velocity"]),

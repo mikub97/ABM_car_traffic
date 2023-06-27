@@ -146,7 +146,10 @@ class GUI:
             self.update()
             self.render()
             self.clock.tick(self.fps)
+        print("Simulation finished, calculating and saving the measures...")
         self.model.data_collector_save()
+        print("...done.")
+
         pygame.quit()
 
 

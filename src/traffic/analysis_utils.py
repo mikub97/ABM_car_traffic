@@ -39,27 +39,31 @@ def calc_mean_velocity(df, t_start, t_end, x_start, x_end):
     return mean_velocity
 
 
-def collect_data(agent_data,sessions, measure_times,measure_settings):
+def collect_data(agent_data,sessions, measure_times,measure_settings,session_counter):
     measures = []
     if len(sessions) != len(measure_times):
-        print("SOMETHING IS WRONG IN COLLECT DATA!!!")
+        print("Something's wrong with measuring... Did you stop the simulation, during running?")
+        print("Skipping measures from the last session...")
+        sessions = sessions[:session_counter-1]
     for i,session in enumerate(sessions):
-        measure = session
+        measure = {
+            "session_ix": i
+        }
+        measure.update(session)
+
         t_start = measure_times[i]["t_start"],
         t_end = measure_times[i]["t_end"],
         x_start = measure_settings["x_start"]
-
         #da fack ? I dont know
         t_end = t_end[0]
         t_start = t_start[0]
-
         x_end = measure_settings["x_end"]
 
         measure.update({
-            't_start':t_start,
-            't_end':t_end,
-            'x_start':measure_settings["x_start"],
-            'x_end':measure_settings["x_end"],
+            't_start': t_start,
+            't_end': t_end,
+            'x_start': measure_settings["x_start"],
+            'x_end': measure_settings["x_end"],
             'measure_point_x':measure_settings["measure_point_x"],
             'accepted_dist_delta':measure_settings["accepted_dist_delta"],
             'window_size': measure_settings["window_size"],
@@ -71,3 +75,5 @@ def collect_data(agent_data,sessions, measure_times,measure_settings):
         })
         measures.append(measure)
     return pd.DataFrame(measures)
+
+
