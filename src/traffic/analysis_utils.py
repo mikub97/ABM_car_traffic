@@ -39,31 +39,35 @@ def calc_mean_velocity(df, t_start, t_end, x_start, x_end):
     return mean_velocity
 
 
-def collect_data(agent_data,sessions, measure_times):
+def collect_data(agent_data,sessions, measure_times,measure_settings):
     measures = []
-
-    x_start = 500
-    x_end = 600
-    measure_point_x = 500
-    accepted_dist_delta = 10
-    window_size = 100
-
+    if len(sessions) != len(measure_times):
+        print("SOMETHING IS WRONG IN COLLECT DATA!!!")
     for i,session in enumerate(sessions):
-        t_start = measure_times[i*2]
-        t_end = measure_times[i*2+1]
         measure = session
+        t_start = measure_times[i]["t_start"],
+        t_end = measure_times[i]["t_end"],
+        x_start = measure_settings["x_start"]
+
+        #da fack ? I dont know
+        t_end = t_end[0]
+        t_start = t_start[0]
+
+        x_end = measure_settings["x_end"]
+
         measure.update({
             't_start':t_start,
             't_end':t_end,
-            'x_start':x_start,
-            'x_end':x_end,
-            'measure_point_x':measure_point_x,
-            'accepted_dist_delta':accepted_dist_delta,
-            'window_size': window_size,
+            'x_start':measure_settings["x_start"],
+            'x_end':measure_settings["x_end"],
+            'measure_point_x':measure_settings["measure_point_x"],
+            'accepted_dist_delta':measure_settings["accepted_dist_delta"],
+            'window_size': measure_settings["window_size"],
             'average_velocity': calc_mean_velocity(agent_data, t_start, t_end, x_start, x_end),
-            'rolling_average_density': density_running_avg(agent_data,x_start, x_end, t_start, t_end, running_step=5),
-            'rolling_average_flow': flow_rate_running_avg(agent_data,t_start, t_end, measure_point_x, accepted_dist_delta, window_size,
-                                                          running_step=100)
+            'rolling_average_density': density_running_avg(agent_data,x_start, x_end, t_start, t_end,
+                                                           running_step=measure_settings["rolling_average_density_running_step"]),
+            'rolling_average_flow': flow_rate_running_avg(agent_data,t_start, t_end, measure_settings["measure_point_x"], measure_settings["accepted_dist_delta"], measure_settings["window_size"],
+                                                          running_step=measure_settings["rolling_average_flow_running_step"])
         })
         measures.append(measure)
     return pd.DataFrame(measures)

@@ -50,6 +50,10 @@ class Driver(mesa.Agent):
         self.time_between_switches = 100
         self.last_switch = None
 
+        # for calculating measuring timestamps
+        self.t_start, self.t_end = None, None
+        self.x_start_passed,self.x_end_passed=False, False
+
         # marking all previous nodes as already passed
         # and the rest that are still to be reached
         self.node_checkpoints = [True for _ in range(0, start_node + 1)]
@@ -98,6 +102,14 @@ class Driver(mesa.Agent):
 
         if new_pos[0] < self.model.nodes[-1].pos[0]:
             self.model.space.move_agent(self, new_pos)
+
+        if self.pos[0]>self.model.measure_settings["x_start"] and not self.x_start_passed:
+            self.t_start = self.model.time
+            self.x_start_passed = True
+
+        if self.pos[0] > self.model.measure_settings["x_end"] and not self.x_end_passed:
+            self.t_end = self.model.time
+            self.x_end_passed = True
 
         if driver_ahead is not None:
             if driver_ahead.velocity[0] - self.max_speed[0] < -0.001 and driver_ahead.pos[0] - self.pos[0] < 1.1 * self.desired_distance:

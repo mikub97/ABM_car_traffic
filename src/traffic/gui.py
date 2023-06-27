@@ -146,7 +146,7 @@ class GUI:
             self.update()
             self.render()
             self.clock.tick(self.fps)
-        self.model.data_collector_save(self.time_measures)
+        self.model.data_collector_save()
         pygame.quit()
 
 
