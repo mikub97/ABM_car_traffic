@@ -1,6 +1,33 @@
 # ABM_CPMII
 
-GENERAL REMARKS 
+# Traffic Simulation Project
+
+## Introduction
+
+As cognitive science students, we are developing an interest in understanding the behaviors of complex systems. Complex systems, by their nature, are intricate networks of interactions and relationships, and this complexity often gives rise to fascinating phenomena that are not easily predictable by looking at individual elements of the system separately.
+
+One of the most common examples of a complex system is traffic flow. In our daily lives, we experience frustration associated with being stuck in traffic jams, the complicated choreography of merging and lane-changing cars, sudden congestion seemingly appearing out of nowhere, and equally sudden disappearances of traffic jams. These phenomena serve as an excellent illustration of complexity, emergence, and self-organization - concepts that are at the heart of both complex systems and cognitive science.
+
+Traffic congestion also has significant practical implications. It is estimated to cost billions of dollars annually in lost productivity, wasted fuel, and increased air pollution. Moreover, traffic jams can have serious consequences for emergency services, potentially delaying response times, which can lead to loss of life. Therefore, understanding, and ultimately mitigating traffic congestion issues, is not just a fascinating academic challenge but also a problem of crucial practical importance.
+
+The concept of agent-based modeling struck us as an incredibly promising method for understanding complex systems such as traffic congestion. During our studies, we came across the idea of modeling traffic as a system of interacting agents, each following relatively simple rules. This way of thinking harmonizes with our cognitive science direction, as it reflects how individual cognitive processes can lead to complex behaviors.
+
+## Model and Algorithm
+
+In our project, we utilized a microscopic car-following model, which is one of the primary approaches in modeling traffic congestion. This model allows for simulating traffic flow at the level of individual vehicles, providing detailed insight into the dynamics of traffic on the road.
+
+The key assumption of the microscopic car-following model is that each vehicle, or "agent" in our model, makes decisions about its speed and position on the road based on the behavior of the vehicle in front of it. This approach reflects reality, where drivers adjust their behavior on the road in response to traffic conditions, including the speed and position of other vehicles.
+
+Our implementation of the model consists of two main components: agents representing cars and an environment representing the road. Each agent in our model has its own state, which includes its current speed, position on the road, and other relevant parameters. At each simulation step, agents update their state based on simple rules that reflect car-following principles.
+
+The environment of our model is a road with multiple lanes of traffic. Cars can move forward, change lanes, and come to a stop, and their decisions depend on traffic conditions such as the speed of other cars, the distance between cars, and traffic regulations.
+
+The algorithm we applied to our simulation is based on iterative updating of the states of all agents. At each simulation step, each agent analyzes its current state, the state of the road ahead, and makes a decision about its future speed and position. These decisions are then applied to update the agent's state.
+
+Overall, our model and algorithm enable detailed simulation of traffic congestion, taking into account the dynamics of individual vehicles and their interactions. This precision makes our approach particularly useful for investigating issues such as traffic jams, traffic flow "waves," and potential strategies for optimizing traffic flow.
+
+
+## GENERAL REMARKS 
 - just in case, be mindful about giving nodes/agents id - unique_ids should have values from 0 to n,
 this is the index of the element in the nodes/agents lists respectively
 - When using lights.json file as a config for traffic lights, remember, that you don't need to add the final node (the end of the road), its added automatically
@@ -14,7 +41,7 @@ The structure of the project:
 - in main.py, you initialise a TrafficModel class and feed it to the Gui class to run the simulation
 - in boid_flockers/ directory there is an example of mesa ABM, found on internet - ignore it.
 
-To run the simulation:
+## To run the simulation:
 1. Setup the config json files json_data/drivers.json and json_data/traffic.json
 2. Run gui.py file
 
